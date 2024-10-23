@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "783228038188",
+    "firebase_url": "https://agenda-ptval-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "agenda-ptval",
+    "storage_bucket": "agenda-ptval.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:783228038188:android:5b591c1b6f133e1ccc7589",
+        "android_client_info": {
+          "package_name": "com.example.agenda"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAku9wPfyrwfRK26Ft3hL2kHPwiaYN__8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
