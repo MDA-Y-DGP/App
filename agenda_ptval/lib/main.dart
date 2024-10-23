@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'profesores/inicio_sesion.dart';
 
@@ -8,11 +9,14 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  runApp(MyApp(firestore: firestore));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final FirebaseFirestore firestore;
+
+  const MyApp({Key? key, required this.firestore}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,21 +26,31 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Agenda PTVAL'),
+      home: MyHomePage(title: 'Agenda PTVAL', firestore: firestore),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
   final String title;
+  final FirebaseFirestore firestore;
+
+  const MyHomePage({Key? key, required this.title, required this.firestore}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // Navega a la pantalla de inicio de sesión del profesor
+  void _navigateToProfesorLogin(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => InicioSesion(firestore: widget.firestore)),
+    );
+  }
+
+  // Navega a la siguiente pantalla (placeholder)
   void _navigateToNextScreen(BuildContext context) {
     Navigator.push(
       context,
@@ -44,10 +58,53 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _navigateToProfesorLogin(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const InicioSesion()),
+  // Construye el widget para la opción de profesor
+  Widget _buildProfesorOption(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _navigateToProfesorLogin(context),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/profesor.png',
+              width: MediaQuery.of(context).size.width * 0.4,
+              height: MediaQuery.of(context).size.width * 0.4,
+              semanticLabel: 'Imagen de un profesor',
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Profesor',
+              style: TextStyle(fontSize: 24),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Construye el widget para la opción de estudiante
+  Widget _buildEstudianteOption(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _navigateToNextScreen(context),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/estudiante.png',
+              width: MediaQuery.of(context).size.width * 0.4,
+              height: MediaQuery.of(context).size.width * 0.4,
+              semanticLabel: 'Imagen de un estudiante',
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Estudiante',
+              style: TextStyle(fontSize: 24),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -63,49 +120,9 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Expanded(
-              child: GestureDetector(
-                onTap: () => _navigateToProfesorLogin(context),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/profesor.png',
-                      width: MediaQuery.of(context).size.width * 0.4,
-                      height: MediaQuery.of(context).size.width * 0.4,
-                      semanticLabel: 'Imagen de un profesor',
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Profesor',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _buildProfesorOption(context),
             const SizedBox(width: 20),
-            Expanded(
-              child: GestureDetector(
-                onTap: () => _navigateToNextScreen(context),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/estudiante.png',
-                      width: MediaQuery.of(context).size.width * 0.4,
-                      height: MediaQuery.of(context).size.width * 0.4,
-                      semanticLabel: 'Imagen de un estudiante',
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Estudiante',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _buildEstudianteOption(context),
           ],
         ),
       ),
@@ -114,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class NextScreen extends StatelessWidget {
-  const NextScreen({super.key});
+  const NextScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
