@@ -6,7 +6,7 @@ import 'inicio.dart';
 class InicioSesion extends StatefulWidget {
   final FirebaseFirestore firestore;
 
-  const InicioSesion({Key? key, required this.firestore}) : super(key: key);
+  const InicioSesion({super.key, required this.firestore});
 
   @override
   _InicioSesionState createState() => _InicioSesionState();

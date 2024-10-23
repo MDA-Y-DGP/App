@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'profesores/inicio_sesion.dart';
+import 'package:agenda_ptval/vista/registro_estudiante.dart';
+import 'package:agenda_ptval/vista/agregar_clase.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +18,7 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   final FirebaseFirestore firestore;
 
-  const MyApp({Key? key, required this.firestore}) : super(key: key);
+  const MyApp({super.key, required this.firestore});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: MyHomePage(title: 'Agenda PTVAL', firestore: firestore),
+      home: RegistroEstudiante() //MyHomePage(title: 'Agenda PTVAL', firestore: firestore),
     );
   }
 }
@@ -35,7 +37,7 @@ class MyHomePage extends StatefulWidget {
   final String title;
   final FirebaseFirestore firestore;
 
-  const MyHomePage({Key? key, required this.title, required this.firestore}) : super(key: key);
+  const MyHomePage({super.key, required this.title, required this.firestore});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -131,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class NextScreen extends StatelessWidget {
-  const NextScreen({Key? key}) : super(key: key);
+  const NextScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
