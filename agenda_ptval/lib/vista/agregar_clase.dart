@@ -17,6 +17,7 @@ class _AgregarClaseState extends State<AgregarClase> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       Clase nuevaClase = Clase(
+        idClase: 0, // Este valor se actualizará en el controlador
         nombre: nombreClase,
       );
 

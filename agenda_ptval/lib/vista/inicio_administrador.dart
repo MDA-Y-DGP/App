@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../modelo/profesor_modelo.dart';
+import 'agregar_clase.dart';
+import 'registro_estudiante.dart';
 
 class PantallaInicioAdministrador extends StatelessWidget {
   final Profesor profesor;
@@ -29,6 +31,26 @@ class PantallaInicioAdministrador extends StatelessWidget {
             Text('Teléfono: ${profesor.telefono ?? "No disponible"}', style: const TextStyle(fontSize: 16)),
             Text('ID Clase: ${profesor.idClase ?? "No disponible"}', style: const TextStyle(fontSize: 16)),
             Text('Administrador: ${profesor.administrador ? "Sí" : "No"}', style: const TextStyle(fontSize: 16)),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AgregarClase()),
+                );
+              },
+              child: const Text('Agregar Clase'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegistroEstudiante()),
+                );
+              },
+              child: const Text('Registrar Estudiante'),
+            ),
           ],
         ),
       ),

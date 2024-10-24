@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:agenda_ptval/modelo/estudiante_modelo.dart';
 import 'package:agenda_ptval/modelo/clase_modelo.dart';
 import 'package:agenda_ptval/controlador/estudiante_controller.dart';
-import 'package:agenda_ptval/modelo/evento_historial.dart';
 import 'package:crypto/crypto.dart';
 
 class RegistroEstudiante extends StatefulWidget {
@@ -46,17 +45,15 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       Estudiante nuevoEstudiante = Estudiante(
+        idEstudiante: 0, // Este valor se actualizará en el controlador
         nombre: nombre,
         apellidos: apellidos,
         correo: correo,
         fechaNacimiento: fechaNacimiento!,
         gradoAprendizaje: gradoAprendizaje,
-        claseAsignada: claseAsignada!, // Guardamos el ID de la clase
-        imagen: imagen,
+        idClase: int.parse(claseAsignada!), // Guardamos el ID de la clase
+        idHistorial: 0, // Este valor se actualizará en el controlador
         contrasena: hashPassword(contrasena),
-        historial: [
-          EventoHistorial(descripcion: 'Registrado en', fecha: DateTime.now()),
-        ],
       );
 
       _controller.registrarEstudiante(nuevoEstudiante).then((_) {
@@ -130,7 +127,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
                 decoration: InputDecoration(labelText: 'Clase Asignada'),
                 items: clases.map((Clase clase) {
                   return DropdownMenuItem<String>(
-                    value: clase.nombre, // Aquí guardamos el ID de la clase
+                    value: clase.idClase.toString(), // Aquí guardamos el ID de la clase
                     child: Text(clase.nombre), // Aquí mostramos el nombre de la clase
                   );
                 }).toList(),
