@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'profesor.dart';
+import '../modelo/profesor_modelo.dart';
 
-class PantallaInicio extends StatelessWidget {
+class PantallaInicioAdministrador extends StatelessWidget {
   final Profesor profesor;
 
-  const PantallaInicio({super.key, required this.profesor});
+  const PantallaInicioAdministrador({super.key, required this.profesor});
 
   @override
   Widget build(BuildContext context) {

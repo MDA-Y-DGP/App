@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'profesor.dart';
-import 'inicio.dart';
+import '../controlador/profesor_controlador.dart';
+import 'inicio_administrador.dart';
 
 class InicioSesion extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -17,6 +17,14 @@ class _InicioSesionState extends State<InicioSesion> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  late ProfesorController _profesorController;
+
+  @override
+  void initState() {
+    super.initState();
+    _profesorController = ProfesorController();
+  }
+
   // Método para iniciar sesión
   void _iniciarSesion() async {
     if (_formKey.currentState!.validate()) {
@@ -25,22 +33,14 @@ class _InicioSesionState extends State<InicioSesion> {
 
       try {
         // Verificar las credenciales en Firestore
-        final QuerySnapshot result = await widget.firestore
-            .collection('profesores')
-            .where('email', isEqualTo: email)
-            .where('contraseña', isEqualTo: password)
-            .get();
+        final profesor = await _profesorController.verificarCredenciales(email, password);
 
-        if (result.docs.isNotEmpty) {
-          // Credenciales válidas, crear objeto Profesor
-          final doc = result.docs.first;
-          final profesor = Profesor.fromMap(doc.data() as Map<String, dynamic>, doc.id);
-
-          // Navegar a la nueva pantalla
+        if (profesor != null) {
+          // Credenciales válidas, navegar a la nueva pantalla con el modelo de profesor
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => PantallaInicio(profesor: profesor),
+              builder: (context) => PantallaInicioAdministrador(profesor: profesor),
             ),
           );
         } else {
