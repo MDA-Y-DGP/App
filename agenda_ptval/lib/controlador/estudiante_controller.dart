@@ -4,10 +4,18 @@ import 'package:agenda_ptval/modelo/estudiante_modelo.dart';
 import 'package:agenda_ptval/controlador/historial_controller.dart';
 import 'package:agenda_ptval/modelo/historial_modelo.dart';
 
+/// Controlador para manejar las operaciones relacionadas con los estudiantes.
 class EstudianteController {
+  /// Referencia a la colección de estudiantes en Firestore.
   final CollectionReference _estudiantesCollection = FirebaseFirestore.instance.collection('estudiantes');
+
+  /// Instancia del controlador de historiales.
   final HistorialController _historialController = HistorialController();
 
+  /// Registra un nuevo estudiante y crea un historial asociado.
+  /// 
+  /// [estudiante] es la instancia de [Estudiante] que se va a registrar.
+  /// Asigna un nuevo ID al estudiante y al historial, y los guarda en la base de datos.
   Future<void> registrarEstudiante(Estudiante estudiante) async {
     // Obtener todos los estudiantes para encontrar el mayor ID
     QuerySnapshot estudiantesSnapshot = await _estudiantesCollection.get();

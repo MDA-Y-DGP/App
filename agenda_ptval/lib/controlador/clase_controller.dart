@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:agenda_ptval/modelo/clase_modelo.dart';
 
+/// Controlador para manejar las operaciones relacionadas con las clases.
 class ClaseController {
+  /// Instancia de Firestore para acceder a la base de datos.
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Método para obtener todas las clases y encontrar el mayor ID
+  /// Método privado para obtener todas las clases y encontrar el mayor ID.
+  /// 
+  /// Devuelve el mayor ID encontrado entre las clases.
   Future<int> _obtenerMayorIdClase() async {
     QuerySnapshot snapshot = await _firestore.collection('clases').get();
     int maxId = 0;
@@ -19,7 +23,10 @@ class ClaseController {
     return maxId;
   }
 
-  // Método para agregar una nueva clase
+  /// Método para agregar una nueva clase.
+  /// 
+  /// [clase] es la instancia de [Clase] que se va a agregar.
+  /// Asigna un nuevo ID a la clase y la guarda en la base de datos.
   Future<void> agregarClase(Clase clase) async {
     try {
       // Obtener el mayor ID de las clases existentes
@@ -38,7 +45,9 @@ class ClaseController {
     }
   }
 
-  // Método para obtener las clases
+  /// Método para obtener todas las clases.
+  /// 
+  /// Devuelve una lista de instancias de [Clase].
   Future<List<Clase>> obtenerClases() async {
     QuerySnapshot snapshot = await _firestore.collection('clases').get();
     return snapshot.docs.map((doc) => Clase.fromMap(doc.data() as Map<String, dynamic>)).toList();
