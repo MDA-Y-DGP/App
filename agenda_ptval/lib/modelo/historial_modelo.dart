@@ -1,6 +1,4 @@
 // historial_modelo.dart
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Historial {
   int idHistorial;
   int idEstudiante;
