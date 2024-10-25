@@ -23,7 +23,7 @@ class _AgregarClaseState extends State<AgregarClase> {
 
       _controller.agregarClase(nuevaClase).then((_) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Clase agregada con éxito!')),
+          const SnackBar(content: Text('Clase agregada con éxito!')),
         );
         Navigator.pop(context); // Regresar a la vista anterior
       }).catchError((error) {
@@ -38,7 +38,7 @@ class _AgregarClaseState extends State<AgregarClase> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Agregar Clase'),
+        title:const Text('Agregar Clase'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -47,14 +47,14 @@ class _AgregarClaseState extends State<AgregarClase> {
           child: Column(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Nombre de la Clase'),
+                decoration:const InputDecoration(labelText: 'Nombre de la Clase'),
                 onSaved: (value) => nombreClase = value!,
                 validator: (value) => value!.isEmpty ? 'Ingresa el nombre de la clase' : null,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _agregarClase,
-                child: Text('Agregar Clase'),
+                child:const Text('Agregar Clase'),
               ),
             ],
           ),

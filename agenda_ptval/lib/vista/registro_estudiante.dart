@@ -27,6 +27,12 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
 
   List<Clase> clases = []; // Lista para almacenar las clases
 
+  @override
+  void initState() {
+    super.initState();
+    _cargarClases(); // Cargar clases al inicializar el estado
+  }
+
   // Método para cargar clases
   Future<void> _cargarClases() async {
     List<Clase> clasesObtenidas = await _claseController.obtenerClases();
@@ -71,7 +77,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
 
       _controller.registrarEstudiante(nuevoEstudiante).then((_) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Estudiante registrado con éxito!')),
+          const SnackBar(content: Text('Estudiante registrado con éxito!')),
         );
         Navigator.pop(context); // Volver a la página anterior
       }).catchError((error) {
@@ -82,17 +88,72 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _cargarClases(); // Cargar clases al inicializar el estado
+  Widget _buildTextFormField({
+    required String labelText,
+    required Function(String?) onSaved,
+    required String? Function(String?) validator,
+    bool obscureText = false,
+  }) {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: labelText,
+        border:const OutlineInputBorder(),
+      ),
+      onSaved: onSaved,
+      validator: validator,
+      obscureText: obscureText,
+    );
+  }
+
+  Widget _buildDropdownButtonFormField({
+    required String labelText,
+    required String value,
+    required List<String> items,
+    required Function(String?) onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: labelText,
+        border:const OutlineInputBorder(),
+      ),
+      items: items.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _buildClaseDropdownButtonFormField() {
+    return DropdownButtonFormField<String>(
+      value: claseAsignada,
+      decoration:const InputDecoration(
+        labelText: 'Clase Asignada',
+        border: OutlineInputBorder(),
+      ),
+      items: clases.map((Clase clase) {
+        return DropdownMenuItem<String>(
+          value: clase.idClase.toString(), // Aquí guardamos el ID de la clase
+          child: Text(clase.nombre), // Aquí mostramos el nombre de la clase
+        );
+      }).toList(),
+      onChanged: (value) {
+        setState(() {
+          claseAsignada = value; // Aquí asignamos el ID de la clase seleccionada
+        });
+      },
+      validator: (value) => value == null ? 'Selecciona una clase' : null,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Registro de Estudiante'),
+        title:const Text('Registro de Estudiante'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -100,99 +161,60 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Nombre',
-                  border: OutlineInputBorder(),
-                ),
+              _buildTextFormField(
+                labelText: 'Nombre',
                 onSaved: (value) => nombre = value!,
                 validator: (value) => value!.isEmpty ? 'Ingresa un nombre' : null,
               ),
-              SizedBox(height: 16),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Apellidos',
-                  border: OutlineInputBorder(),
-                ),
+              const SizedBox(height: 16),
+              _buildTextFormField(
+                labelText: 'Apellidos',
                 onSaved: (value) => apellidos = value!,
                 validator: (value) => value!.isEmpty ? 'Ingresa apellidos' : null,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ListTile(
                 title: Text(
                   fechaNacimiento == null
                       ? 'Fecha de Nacimiento'
                       : 'Fecha de Nacimiento: ${DateFormat('dd-MM-yyyy').format(fechaNacimiento!)}',
                 ),
-                trailing: Icon(Icons.calendar_today),
+                trailing: const Icon(Icons.calendar_today),
                 onTap: () => _selectDate(context),
               ),
-              SizedBox(height: 16),
-              DropdownButtonFormField<String>(
+              const SizedBox(height: 16),
+              _buildDropdownButtonFormField(
+                labelText: 'Grado de Aprendizaje',
                 value: gradoAprendizaje,
-                decoration: InputDecoration(
-                  labelText: 'Grado de Aprendizaje',
-                  border: OutlineInputBorder(),
-                ),
-                items: ['bajo', 'medio', 'alto'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
+                items: ['bajo', 'medio', 'alto'],
                 onChanged: (value) {
                   setState(() {
                     gradoAprendizaje = value!;
                   });
                 },
               ),
-              SizedBox(height: 16),
-              // Dropdown para seleccionar la clase
-              DropdownButtonFormField<String>(
-                value: claseAsignada,
-                decoration: InputDecoration(
-                  labelText: 'Clase Asignada',
-                  border: OutlineInputBorder(),
-                ),
-                items: clases.map((Clase clase) {
-                  return DropdownMenuItem<String>(
-                    value: clase.idClase.toString(), // Aquí guardamos el ID de la clase
-                    child: Text(clase.nombre), // Aquí mostramos el nombre de la clase
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    claseAsignada = value; // Aquí asignamos el ID de la clase seleccionada
-                  });
-                },
-                validator: (value) => value == null ? 'Selecciona una clase' : null,
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'URL de Imagen',
-                  border: OutlineInputBorder(),
-                ),
+              const SizedBox(height: 16),
+              _buildClaseDropdownButtonFormField(),
+              const SizedBox(height: 16),
+              _buildTextFormField(
+                labelText: 'URL de Imagen',
                 onSaved: (value) => imagen = value!,
                 validator: (value) => value!.isEmpty ? 'Ingresa una URL de imagen' : null,
               ),
-              SizedBox(height: 16),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Contraseña',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
+              const SizedBox(height: 16),
+              _buildTextFormField(
+                labelText: 'Contraseña',
                 onSaved: (value) => contrasena = value!,
                 validator: (value) => value!.isEmpty ? 'Ingresa una contraseña' : null,
+                obscureText: true,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _registrar,
-                child: Text('Registrar Estudiante'),
+                child: const Text('Registrar Estudiante'),
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  textStyle: TextStyle(fontSize: 18),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  textStyle: const TextStyle(fontSize: 18),
                 ),
               ),
             ],
