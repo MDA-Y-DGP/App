@@ -12,13 +12,10 @@ class Estudiante {
   /// Los apellidos del estudiante.
   String apellidos;
 
-  /// El correo electrónico del estudiante.
-  String correo;
-
   /// La fecha de nacimiento del estudiante.
   DateTime fechaNacimiento;
 
-  /// El grado de aprendizaje del estudiante (puede ser "texto", "imagenes" o "videos").
+  /// El grado de aprendizaje del estudiante (puede ser "bajo", "medio" o "alto").
   String gradoAprendizaje;
 
   /// El ID de la clase a la que pertenece el estudiante.
@@ -27,7 +24,7 @@ class Estudiante {
   /// El ID del historial del estudiante.
   int idHistorial;
 
-  /// La contraseña del estudiante.
+  /// La contraseña del estudiante. Si el estudiante tiene un grado alto podra usar texto en la contraseña sino pictogramas.
   String contrasena;
 
   /// Constructor para crear una instancia de [Estudiante].
@@ -45,7 +42,6 @@ class Estudiante {
     required this.idEstudiante,
     required this.nombre,
     required this.apellidos,
-    required this.correo,
     required this.fechaNacimiento,
     required this.gradoAprendizaje,
     required this.idClase,
@@ -61,7 +57,6 @@ class Estudiante {
       'id_estudiante': idEstudiante,
       'nombre': nombre,
       'apellidos': apellidos,
-      'correo': correo,
       'fecha_nacimiento': fechaNacimiento,
       'grado_aprendizaje': gradoAprendizaje,
       'id_clase': idClase,
@@ -79,7 +74,6 @@ class Estudiante {
       idEstudiante: json['id_estudiante'],
       nombre: json['nombre'],
       apellidos: json['apellidos'],
-      correo: json['correo'],
       fechaNacimiento: (json['fecha_nacimiento'] as Timestamp).toDate(),
       gradoAprendizaje: json['grado_aprendizaje'],
       idClase: json['id_clase'],

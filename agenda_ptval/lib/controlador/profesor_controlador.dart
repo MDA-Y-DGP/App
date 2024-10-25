@@ -33,7 +33,6 @@ class ProfesorController {
       apellidos: profesor.apellidos,
       email: profesor.email,
       telefono: profesor.telefono,
-      idClase: profesor.idClase,
       administrador: profesor.administrador,
       contrasena: profesor.contrasena,
     );

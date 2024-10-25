@@ -29,7 +29,6 @@ class PantallaInicioAdministrador extends StatelessWidget {
             Text('Apellidos: ${profesor.apellidos}', style: const TextStyle(fontSize: 16)),
             Text('Email: ${profesor.email}', style: const TextStyle(fontSize: 16)),
             Text('Teléfono: ${profesor.telefono ?? "No disponible"}', style: const TextStyle(fontSize: 16)),
-            Text('ID Clase: ${profesor.idClase ?? "No disponible"}', style: const TextStyle(fontSize: 16)),
             Text('Administrador: ${profesor.administrador ? "Sí" : "No"}', style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 20),
             ElevatedButton(

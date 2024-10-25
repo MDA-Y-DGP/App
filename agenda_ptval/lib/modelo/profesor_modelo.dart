@@ -17,9 +17,6 @@ class Profesor {
   /// El número de teléfono del profesor (puede ser nulo).
   final String? telefono;
 
-  /// El ID de la clase a la que pertenece el profesor (puede ser nulo).
-  final int? idClase;
-
   /// Indica si el profesor es administrador.
   final bool administrador;
 
@@ -33,7 +30,6 @@ class Profesor {
   /// [apellidos] son los apellidos del profesor.
   /// [email] es el correo electrónico del profesor.
   /// [telefono] es el número de teléfono del profesor (puede ser nulo).
-  /// [idClase] es el ID de la clase a la que pertenece el profesor (puede ser nulo).
   /// [administrador] indica si el profesor es administrador.
   /// [contrasena] es la contraseña del profesor.
   Profesor({
@@ -42,7 +38,6 @@ class Profesor {
     required this.apellidos,
     required this.email,
     this.telefono,
-    this.idClase,
     required this.administrador,
     required this.contrasena,
   });
@@ -58,7 +53,6 @@ class Profesor {
       apellidos: map['apellidos'] ?? '',
       email: map['email'] ?? '',
       telefono: map['telefono'],
-      idClase: map['id_clase'] != null ? map['id_clase'] as int : null,
       administrador: map['administrador'] ?? false,
       contrasena: map['contraseña'] ?? '',
     );
@@ -74,7 +68,6 @@ class Profesor {
       'apellidos': apellidos,
       'email': email,
       'telefono': telefono,
-      'id_clase': idClase,
       'administrador': administrador,
       'contraseña': contrasena,
     };

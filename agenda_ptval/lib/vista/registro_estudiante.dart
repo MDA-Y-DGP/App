@@ -5,6 +5,7 @@ import 'package:agenda_ptval/modelo/estudiante_modelo.dart';
 import 'package:agenda_ptval/modelo/clase_modelo.dart';
 import 'package:agenda_ptval/controlador/estudiante_controller.dart';
 import 'package:crypto/crypto.dart';
+import 'package:intl/intl.dart'; // para formatear la fecha
 
 class RegistroEstudiante extends StatefulWidget {
   @override
@@ -18,9 +19,8 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
 
   String nombre = '';
   String apellidos = '';
-  String correo = '';
   DateTime? fechaNacimiento;
-  String gradoAprendizaje = 'texto'; // Valor predeterminado
+  String gradoAprendizaje = 'bajo'; // Valor predeterminado
   String? claseAsignada;
   String imagen = '';
   String contrasena = '';
@@ -41,6 +41,20 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
     return digest.toString();
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: fechaNacimiento ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null && picked != fechaNacimiento) {
+      setState(() {
+        fechaNacimiento = picked;
+      });
+    }
+  }
+
   void _registrar() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -48,7 +62,6 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
         idEstudiante: 0, // Este valor se actualizará en el controlador
         nombre: nombre,
         apellidos: apellidos,
-        correo: correo,
         fechaNacimiento: fechaNacimiento!,
         gradoAprendizaje: gradoAprendizaje,
         idClase: int.parse(claseAsignada!), // Guardamos el ID de la clase
@@ -60,6 +73,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Estudiante registrado con éxito!')),
         );
+        Navigator.pop(context); // Volver a la página anterior
       }).catchError((error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al registrar: $error')),
@@ -84,32 +98,43 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: ListView(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Nombre'),
+                decoration: InputDecoration(
+                  labelText: 'Nombre',
+                  border: OutlineInputBorder(),
+                ),
                 onSaved: (value) => nombre = value!,
                 validator: (value) => value!.isEmpty ? 'Ingresa un nombre' : null,
               ),
+              SizedBox(height: 16),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Apellidos'),
+                decoration: InputDecoration(
+                  labelText: 'Apellidos',
+                  border: OutlineInputBorder(),
+                ),
                 onSaved: (value) => apellidos = value!,
                 validator: (value) => value!.isEmpty ? 'Ingresa apellidos' : null,
               ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Correo'),
-                onSaved: (value) => correo = value!,
-                validator: (value) => value!.isEmpty ? 'Ingresa un correo' : null,
+              SizedBox(height: 16),
+              ListTile(
+                title: Text(
+                  fechaNacimiento == null
+                      ? 'Fecha de Nacimiento'
+                      : 'Fecha de Nacimiento: ${DateFormat('dd-MM-yyyy').format(fechaNacimiento!)}',
+                ),
+                trailing: Icon(Icons.calendar_today),
+                onTap: () => _selectDate(context),
               ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Fecha de Nacimiento (YYYY-MM-DD)'),
-                onSaved: (value) => fechaNacimiento = DateTime.parse(value!),
-                validator: (value) => value!.isEmpty ? 'Ingresa la fecha de nacimiento' : null,
-              ),
+              SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: gradoAprendizaje,
-                decoration: InputDecoration(labelText: 'Grado de Aprendizaje'),
-                items: ['texto', 'imagenes', 'videos'].map((String value) {
+                decoration: InputDecoration(
+                  labelText: 'Grado de Aprendizaje',
+                  border: OutlineInputBorder(),
+                ),
+                items: ['bajo', 'medio', 'alto'].map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
@@ -121,10 +146,14 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
                   });
                 },
               ),
+              SizedBox(height: 16),
               // Dropdown para seleccionar la clase
               DropdownButtonFormField<String>(
                 value: claseAsignada,
-                decoration: InputDecoration(labelText: 'Clase Asignada'),
+                decoration: InputDecoration(
+                  labelText: 'Clase Asignada',
+                  border: OutlineInputBorder(),
+                ),
                 items: clases.map((Clase clase) {
                   return DropdownMenuItem<String>(
                     value: clase.idClase.toString(), // Aquí guardamos el ID de la clase
@@ -138,13 +167,21 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
                 },
                 validator: (value) => value == null ? 'Selecciona una clase' : null,
               ),
+              SizedBox(height: 16),
               TextFormField(
-                decoration: InputDecoration(labelText: 'URL de Imagen'),
+                decoration: InputDecoration(
+                  labelText: 'URL de Imagen',
+                  border: OutlineInputBorder(),
+                ),
                 onSaved: (value) => imagen = value!,
                 validator: (value) => value!.isEmpty ? 'Ingresa una URL de imagen' : null,
               ),
+              SizedBox(height: 16),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Contraseña'),
+                decoration: InputDecoration(
+                  labelText: 'Contraseña',
+                  border: OutlineInputBorder(),
+                ),
                 obscureText: true,
                 onSaved: (value) => contrasena = value!,
                 validator: (value) => value!.isEmpty ? 'Ingresa una contraseña' : null,
@@ -153,6 +190,10 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
               ElevatedButton(
                 onPressed: _registrar,
                 child: Text('Registrar Estudiante'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  textStyle: TextStyle(fontSize: 18),
+                ),
               ),
             ],
           ),

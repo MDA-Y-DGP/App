@@ -42,7 +42,6 @@ class EstudianteController {
       idEstudiante: newEstudianteId,
       nombre: estudiante.nombre,
       apellidos: estudiante.apellidos,
-      correo: estudiante.correo,
       fechaNacimiento: estudiante.fechaNacimiento,
       gradoAprendizaje: estudiante.gradoAprendizaje,
       idClase: estudiante.idClase,
