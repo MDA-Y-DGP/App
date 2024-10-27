@@ -5,17 +5,8 @@ class Profesor {
   /// El ID del profesor en Firestore.
   final int idProfesor;
 
-  /// El nombre del profesor.
-  final String nombre;
-
-  /// Los apellidos del profesor.
-  final String apellidos;
-
-  /// El correo electrónico del profesor.
-  final String email;
-
-  /// El número de teléfono del profesor (puede ser nulo).
-  final String? telefono;
+  /// El apodo del profesor.
+  final String nickname;
 
   /// Indica si el profesor es administrador.
   final bool administrador;
@@ -26,18 +17,12 @@ class Profesor {
   /// Constructor para crear una instancia de [Profesor].
   /// 
   /// [idProfesor] es el ID del profesor.
-  /// [nombre] es el nombre del profesor.
-  /// [apellidos] son los apellidos del profesor.
-  /// [email] es el correo electrónico del profesor.
-  /// [telefono] es el número de teléfono del profesor (puede ser nulo).
+  /// [nickname] es el apodo del profesor.
   /// [administrador] indica si el profesor es administrador.
   /// [contrasena] es la contraseña del profesor.
   Profesor({
     required this.idProfesor,
-    required this.nombre,
-    required this.apellidos,
-    required this.email,
-    this.telefono,
+    required this.nickname,
     required this.administrador,
     required this.contrasena,
   });
@@ -49,10 +34,7 @@ class Profesor {
   factory Profesor.fromMap(Map<String, dynamic> map) {
     return Profesor(
       idProfesor: map['id_profesor'] ?? 0,
-      nombre: map['nombre'] ?? '',
-      apellidos: map['apellidos'] ?? '',
-      email: map['email'] ?? '',
-      telefono: map['telefono'],
+      nickname: map['nickname'] ?? '',
       administrador: map['administrador'] ?? false,
       contrasena: map['contraseña'] ?? '',
     );
@@ -64,10 +46,7 @@ class Profesor {
   Map<String, dynamic> toMap() {
     return {
       'id_profesor': idProfesor,
-      'nombre': nombre,
-      'apellidos': apellidos,
-      'email': email,
-      'telefono': telefono,
+      'nickname': nickname,
       'administrador': administrador,
       'contraseña': contrasena,
     };

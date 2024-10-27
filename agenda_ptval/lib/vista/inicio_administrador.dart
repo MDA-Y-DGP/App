@@ -21,14 +21,11 @@ class PantallaInicioAdministrador extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Has iniciado sesión, ${profesor.nombre}',
+              'Has iniciado sesión, ${profesor.nickname}',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            Text('Nombre: ${profesor.nombre}', style: const TextStyle(fontSize: 16)),
-            Text('Apellidos: ${profesor.apellidos}', style: const TextStyle(fontSize: 16)),
-            Text('Email: ${profesor.email}', style: const TextStyle(fontSize: 16)),
-            Text('Teléfono: ${profesor.telefono ?? "No disponible"}', style: const TextStyle(fontSize: 16)),
+            Text('Nickname: ${profesor.nickname}', style: const TextStyle(fontSize: 16)),
             Text('Administrador: ${profesor.administrador ? "Sí" : "No"}', style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 20),
             ElevatedButton(

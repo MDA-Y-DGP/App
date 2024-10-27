@@ -12,6 +12,15 @@ class ProfesorController {
   /// [profesor] es la instancia de [Profesor] que se va a registrar.
   /// Asigna un nuevo ID al profesor y lo guarda en la base de datos.
   Future<void> registrarProfesor(Profesor profesor) async {
+    // Verificar si el nickname ya existe
+    QuerySnapshot existingNicknames = await _profesoresCollection
+        .where('nickname', isEqualTo: profesor.nickname)
+        .get();
+
+    if (existingNicknames.docs.isNotEmpty) {
+      throw Exception('El nickname ya está en uso.');
+    }
+
     // Obtener todos los profesores para encontrar el mayor ID
     QuerySnapshot querySnapshot = await _profesoresCollection.get();
     int maxId = 0;
@@ -29,10 +38,7 @@ class ProfesorController {
     // Crear un nuevo profesor con el nuevo ID
     Profesor nuevoProfesor = Profesor(
       idProfesor: newId,
-      nombre: profesor.nombre,
-      apellidos: profesor.apellidos,
-      email: profesor.email,
-      telefono: profesor.telefono,
+      nickname: profesor.nickname,
       administrador: profesor.administrador,
       contrasena: profesor.contrasena,
     );
@@ -65,12 +71,12 @@ class ProfesorController {
 
   /// Método para verificar las credenciales del profesor.
   /// 
-  /// [email] es el correo electrónico del profesor.
+  /// [nickname] es el apodo del profesor.
   /// [contrasena] es la contraseña del profesor.
   /// Devuelve una instancia de [Profesor] si las credenciales son correctas, de lo contrario, devuelve null.
-  Future<Profesor?> verificarCredenciales(String email, String contrasena) async {
+  Future<Profesor?> verificarCredenciales(String nickname, String contrasena) async {
     final QuerySnapshot result = await _profesoresCollection
-        .where('email', isEqualTo: email)
+        .where('nickname', isEqualTo: nickname)
         .where('contraseña', isEqualTo: contrasena)
         .get();
 

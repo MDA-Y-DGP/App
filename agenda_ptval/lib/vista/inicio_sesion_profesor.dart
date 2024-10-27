@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../controlador/profesor_controlador.dart';
+import '../controlador/profesor_controller.dart';
 import 'inicio_administrador.dart';
 
 class InicioSesion extends StatefulWidget {
@@ -13,7 +13,7 @@ class InicioSesion extends StatefulWidget {
 }
 
 class _InicioSesionState extends State<InicioSesion> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _nicknameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -28,12 +28,12 @@ class _InicioSesionState extends State<InicioSesion> {
   // Método para iniciar sesión
   void _iniciarSesion() async {
     if (_formKey.currentState!.validate()) {
-      String email = _emailController.text;
+      String nickname = _nicknameController.text;
       String password = _passwordController.text;
 
       try {
         // Verificar las credenciales en Firestore
-        final profesor = await _profesorController.verificarCredenciales(email, password);
+        final profesor = await _profesorController.verificarCredenciales(nickname, password);
 
         if (profesor != null) {
           // Credenciales válidas, navegar a la nueva pantalla con el modelo de profesor
@@ -94,25 +94,27 @@ class _InicioSesionState extends State<InicioSesion> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildEmailField(),
+          _buildNicknameField(),
           const SizedBox(height: 16),
           _buildPasswordField(),
           const SizedBox(height: 20),
           _buildLoginButton(),
+          const SizedBox(height: 20),
+          _buildBackButton(), // Añadir el botón de regreso
         ],
       ),
     );
   }
 
-  // Widget para el campo de correo electrónico
-  Widget _buildEmailField() {
+  // Widget para el campo de nickname
+  Widget _buildNicknameField() {
     return Semantics(
-      label: 'Campo de correo electrónico',
-      hint: 'Ingresa tu correo electrónico',
+      label: 'Campo de nickname',
+      hint: 'Ingresa tu nickname',
       child: TextFormField(
-        controller: _emailController,
+        controller: _nicknameController,
         decoration: InputDecoration(
-          labelText: 'Correo Electrónico',
+          labelText: 'Nickname',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -121,9 +123,7 @@ class _InicioSesionState extends State<InicioSesion> {
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Por favor ingresa tu correo electrónico';
-          } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-            return 'Ingresa un correo electrónico válido';
+            return 'Por favor ingresa tu nickname';
           }
           return null;
         },
@@ -171,6 +171,27 @@ class _InicioSesionState extends State<InicioSesion> {
           ),
         ),
         child: const Text('Iniciar Sesión'),
+      ),
+    );
+  }
+
+  // Widget para el botón de regreso
+  Widget _buildBackButton() {
+    return Semantics(
+      label: 'Botón de regreso',
+      hint: 'Presiona para volver a la página anterior',
+      child: ElevatedButton.icon(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        icon: const Icon(Icons.arrow_back),
+        label: const Text('Regresar'),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
       ),
     );
   }

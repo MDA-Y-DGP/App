@@ -1,4 +1,3 @@
-// estudiante_controller.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:agenda_ptval/modelo/estudiante_modelo.dart';
 import 'package:agenda_ptval/controlador/historial_controller.dart';
@@ -17,6 +16,15 @@ class EstudianteController {
   /// [estudiante] es la instancia de [Estudiante] que se va a registrar.
   /// Asigna un nuevo ID al estudiante y al historial, y los guarda en la base de datos.
   Future<void> registrarEstudiante(Estudiante estudiante) async {
+    // Verificar si el nickname ya existe
+    QuerySnapshot existingNicknames = await _estudiantesCollection
+        .where('nickname', isEqualTo: estudiante.nickname)
+        .get();
+
+    if (existingNicknames.docs.isNotEmpty) {
+      throw Exception('El nickname ya está en uso.');
+    }
+
     // Obtener todos los estudiantes para encontrar el mayor ID
     QuerySnapshot estudiantesSnapshot = await _estudiantesCollection.get();
     int maxEstudianteId = 0;
@@ -40,9 +48,7 @@ class EstudianteController {
     // Crear un nuevo estudiante con el nuevo ID
     Estudiante nuevoEstudiante = Estudiante(
       idEstudiante: newEstudianteId,
-      nombre: estudiante.nombre,
-      apellidos: estudiante.apellidos,
-      fechaNacimiento: estudiante.fechaNacimiento,
+      nickname: estudiante.nickname,
       gradoAprendizaje: estudiante.gradoAprendizaje,
       idClase: estudiante.idClase,
       idHistorial: newHistorialId,

@@ -1,11 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:agenda_ptval/controlador/clase_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:agenda_ptval/modelo/estudiante_modelo.dart';
 import 'package:agenda_ptval/modelo/clase_modelo.dart';
 import 'package:agenda_ptval/controlador/estudiante_controller.dart';
 import 'package:crypto/crypto.dart';
-import 'package:intl/intl.dart'; // para formatear la fecha
+import 'package:image_picker/image_picker.dart';
 
 class RegistroEstudiante extends StatefulWidget {
   @override
@@ -16,13 +17,12 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
   final _formKey = GlobalKey<FormState>();
   final EstudianteController _controller = EstudianteController();
   final ClaseController _claseController = ClaseController();
+  final ImagePicker _picker = ImagePicker();
 
-  String nombre = '';
-  String apellidos = '';
-  DateTime? fechaNacimiento;
+  String nickname = '';
   String gradoAprendizaje = 'bajo'; // Valor predeterminado
   String? claseAsignada;
-  String imagen = '';
+  File? imagen;
   String contrasena = '';
 
   List<Clase> clases = []; // Lista para almacenar las clases
@@ -47,44 +47,44 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
     return digest.toString();
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: fechaNacimiento ?? DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null && picked != fechaNacimiento) {
-      setState(() {
-        fechaNacimiento = picked;
-      });
+  Future<void> _pickImage() async {
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          imagen = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al seleccionar la imagen: $e')),
+      );
     }
   }
 
-  void _registrar() {
+  Future<void> _registrar() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       Estudiante nuevoEstudiante = Estudiante(
         idEstudiante: 0, // Este valor se actualizará en el controlador
-        nombre: nombre,
-        apellidos: apellidos,
-        fechaNacimiento: fechaNacimiento!,
+        nickname: nickname,
         gradoAprendizaje: gradoAprendizaje,
         idClase: int.parse(claseAsignada!), // Guardamos el ID de la clase
         idHistorial: 0, // Este valor se actualizará en el controlador
         contrasena: hashPassword(contrasena),
       );
 
-      _controller.registrarEstudiante(nuevoEstudiante).then((_) {
+      try {
+        await _controller.registrarEstudiante(nuevoEstudiante);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Estudiante registrado con éxito!')),
         );
         Navigator.pop(context); // Volver a la página anterior
-      }).catchError((error) {
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al registrar: $error')),
+          SnackBar(content: Text('Error al registrar: $e')),
         );
-      });
+      }
     }
   }
 
@@ -97,7 +97,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
     return TextFormField(
       decoration: InputDecoration(
         labelText: labelText,
-        border:const OutlineInputBorder(),
+        border: const OutlineInputBorder(),
       ),
       onSaved: onSaved,
       validator: validator,
@@ -115,7 +115,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
       value: value,
       decoration: InputDecoration(
         labelText: labelText,
-        border:const OutlineInputBorder(),
+        border: const OutlineInputBorder(),
       ),
       items: items.map((String value) {
         return DropdownMenuItem<String>(
@@ -130,7 +130,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
   Widget _buildClaseDropdownButtonFormField() {
     return DropdownButtonFormField<String>(
       value: claseAsignada,
-      decoration:const InputDecoration(
+      decoration: const InputDecoration(
         labelText: 'Clase Asignada',
         border: OutlineInputBorder(),
       ),
@@ -153,7 +153,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:const Text('Registro de Estudiante'),
+        title: const Text('Registro de Estudiante'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -162,25 +162,9 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
           child: ListView(
             children: [
               _buildTextFormField(
-                labelText: 'Nombre',
-                onSaved: (value) => nombre = value!,
-                validator: (value) => value!.isEmpty ? 'Ingresa un nombre' : null,
-              ),
-              const SizedBox(height: 16),
-              _buildTextFormField(
-                labelText: 'Apellidos',
-                onSaved: (value) => apellidos = value!,
-                validator: (value) => value!.isEmpty ? 'Ingresa apellidos' : null,
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                title: Text(
-                  fechaNacimiento == null
-                      ? 'Fecha de Nacimiento'
-                      : 'Fecha de Nacimiento: ${DateFormat('dd-MM-yyyy').format(fechaNacimiento!)}',
-                ),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () => _selectDate(context),
+                labelText: 'Nickname',
+                onSaved: (value) => nickname = value!,
+                validator: (value) => value!.isEmpty ? 'Ingresa un nickname' : null,
               ),
               const SizedBox(height: 16),
               _buildDropdownButtonFormField(
@@ -196,10 +180,10 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
               const SizedBox(height: 16),
               _buildClaseDropdownButtonFormField(),
               const SizedBox(height: 16),
-              _buildTextFormField(
-                labelText: 'URL de Imagen',
-                onSaved: (value) => imagen = value!,
-                validator: (value) => value!.isEmpty ? 'Ingresa una URL de imagen' : null,
+              ListTile(
+                title: Text(imagen == null ? 'Selecciona una imagen (opcional)' : 'Imagen seleccionada'),
+                trailing: const Icon(Icons.image),
+                onTap: _pickImage,
               ),
               const SizedBox(height: 16),
               _buildTextFormField(
@@ -210,7 +194,15 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _registrar,
+                onPressed: () async {
+                  try {
+                    await _registrar();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.toString())),
+                    );
+                  }
+                },
                 child: const Text('Registrar Estudiante'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
