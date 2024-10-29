@@ -3,16 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controlador/profesor_controller.dart';
 import 'inicio_administrador.dart';
 
-class InicioSesion extends StatefulWidget {
+class InicioSesionProfesor extends StatefulWidget {
   final FirebaseFirestore firestore;
 
-  const InicioSesion({super.key, required this.firestore});
+  const InicioSesionProfesor({super.key, required this.firestore});
 
   @override
   _InicioSesionState createState() => _InicioSesionState();
 }
 
-class _InicioSesionState extends State<InicioSesion> {
+class _InicioSesionState extends State<InicioSesionProfesor> {
   final TextEditingController _nicknameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -73,7 +73,7 @@ class _InicioSesionState extends State<InicioSesion> {
   Widget _buildLogo() {
     return Column(
       children: [
-        Image.asset('assets/profesor.png', height: 250), 
+        Image.asset('assets/profesor.png', height: 250),
         const SizedBox(height: 20),
         const Text(
           'Inicio de Sesión - Profesor',
@@ -204,7 +204,7 @@ class _InicioSesionState extends State<InicioSesion> {
           label: 'Botón de atrás',
           hint: 'Vuelve a la página anterior',
           child: IconButton(
-            icon: const Icon(Icons.arrow_back, size: 30), 
+            icon: const Icon(Icons.arrow_back, size: 30),
             onPressed: () {
               Navigator.pop(context);
             },

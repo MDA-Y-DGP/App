@@ -53,6 +53,7 @@ class EstudianteController {
       idClase: estudiante.idClase,
       idHistorial: newHistorialId,
       contrasena: estudiante.contrasena,
+      foto: estudiante.foto,
     );
 
     // Crear un nuevo historial asociado al estudiante
@@ -69,4 +70,51 @@ class EstudianteController {
     await _estudiantesCollection.add(nuevoEstudiante.toJson());
     await _historialController.agregarHistorial(nuevoHistorial);
   }
+
+  /// Inicia sesión de un estudiante verificando el `nickname` y la `contrasena`.
+  /// Retorna una instancia de `Estudiante` si la autenticación es exitosa.
+  Future<Estudiante?> iniciarSesion(String nickname, String contrasena) async {
+    try {
+      // Buscar al estudiante con el nickname y contraseña dados
+      QuerySnapshot query = await _estudiantesCollection
+          .where('nickname', isEqualTo: nickname)
+          .where('contrasena', isEqualTo: contrasena)
+          .get();
+
+      if (query.docs.isEmpty) {
+        // No se encontró un estudiante con ese nickname y contraseña
+        return null;
+      }
+
+      // Convertir el primer resultado de la consulta a un objeto Estudiante
+      var doc = query.docs.first;
+      return Estudiante.fromJson(doc.data() as Map<String, dynamic>);
+    } catch (e) {
+      throw Exception('Error al iniciar sesión: $e');
+    }
+  }
+
+  /// Obtiene el nombre y la foto de todos los estudiantes en la base de datos.
+  Future<List<Map<String, dynamic>>> obtenerNombreFotoGradoDeEstudiantes() async {
+    try {
+      QuerySnapshot querySnapshot = await _estudiantesCollection.get();
+
+      List<Map<String, dynamic>> listaEstudiantes = [];
+
+      for (var doc in querySnapshot.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+
+        listaEstudiantes.add({
+          'nickname': data['nickname'],
+          'foto': data['foto'] ?? '', // Si no hay foto, usar un valor vacío
+          'gradoAprendizaje': data['grado_aprendizaje']
+        });
+      }
+
+      return listaEstudiantes;
+    } catch (e) {
+      throw Exception('Error al obtener nombres y fotos de estudiantes: $e');
+    }
+  }
+
 }

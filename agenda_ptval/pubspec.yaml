@@ -35,6 +35,9 @@ dependencies:
   firebase_core: ^3.6.0
   cloud_firestore: ^5.4.3
 
+  firebase_storage: ^12.3.4
+
+
   # Cifrado de contraseñas
   crypto: ^3.0.1
   convert: ^3.0.1

@@ -24,6 +24,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
   String? claseAsignada;
   File? imagen;
   String contrasena = '';
+  String foto = '';
 
   List<Clase> clases = []; // Lista para almacenar las clases
 
@@ -72,6 +73,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
         idClase: int.parse(claseAsignada!), // Guardamos el ID de la clase
         idHistorial: 0, // Este valor se actualizará en el controlador
         contrasena: hashPassword(contrasena),
+        foto: foto,
       );
 
       try {

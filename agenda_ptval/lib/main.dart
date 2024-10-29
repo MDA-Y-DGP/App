@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'vista/inicio_sesion_profesor.dart';
+import 'vista/inicio_sesion_estudiante.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,7 +47,15 @@ class _MyHomePageState extends State<MyHomePage> {
   void _navigateToProfesorLogin(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => InicioSesion(firestore: widget.firestore)),
+      MaterialPageRoute(builder: (context) => InicioSesionProfesor(firestore: widget.firestore)),
+    );
+  }
+
+  // Navega a la pantalla de inicio de sesión del estudiante
+  void _navigateToStudentLogin(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => InicioSesionEstudiante(firestore: widget.firestore)),
     );
   }
 
@@ -87,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildEstudianteOption(BuildContext context) {
     return Expanded(
       child: GestureDetector(
-        onTap: () => _navigateToNextScreen(context),
+        onTap: () => _navigateToStudentLogin(context),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
