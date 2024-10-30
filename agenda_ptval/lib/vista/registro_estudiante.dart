@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:agenda_ptval/controlador/clase_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:agenda_ptval/modelo/estudiante_modelo.dart';
@@ -7,6 +8,8 @@ import 'package:agenda_ptval/modelo/clase_modelo.dart';
 import 'package:agenda_ptval/controlador/estudiante_controller.dart';
 import 'package:crypto/crypto.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class RegistroEstudiante extends StatefulWidget {
   @override
@@ -23,6 +26,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
   String gradoAprendizaje = 'bajo'; // Valor predeterminado
   String? claseAsignada;
   File? imagen;
+  Uint8List? imagenBytes;
   String contrasena = '';
   String foto = '';
 
@@ -34,7 +38,6 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
     _cargarClases(); // Cargar clases al inicializar el estado
   }
 
-  // Método para cargar clases
   Future<void> _cargarClases() async {
     List<Clase> clasesObtenidas = await _claseController.obtenerClases();
     setState(() {
@@ -52,9 +55,16 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
-        setState(() {
-          imagen = File(pickedFile.path);
-        });
+        if (kIsWeb) {
+          final bytes = await pickedFile.readAsBytes();
+          setState(() {
+            imagenBytes = bytes;
+          });
+        } else {
+          setState(() {
+            imagen = File(pickedFile.path);
+          });
+        }
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -63,9 +73,49 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
     }
   }
 
+  Future<void> _uploadImage(File image, String nickname) async {
+    try {
+      final storageRef = FirebaseStorage.instance.ref();
+      final imageRef = storageRef.child('images/${nickname}_perfil.jpg');
+      final uploadTask = imageRef.putFile(image);
+      final snapshot = await uploadTask.whenComplete(() => null);
+      foto = await snapshot.ref.getDownloadURL();
+    } catch (e) {
+      throw Exception('Error al subir la imagen: $e');
+    }
+  }
+
+  Future<void> _uploadImageWeb(Uint8List imageBytes, String nickname) async {
+    try {
+      final storageRef = FirebaseStorage.instance.ref();
+      final imageRef = storageRef.child('images/${nickname}_perfil.jpg');
+      final uploadTask = imageRef.putData(imageBytes);
+      final snapshot = await uploadTask.whenComplete(() => null);
+      foto = await snapshot.ref.getDownloadURL();
+    } catch (e) {
+      throw Exception('Error al subir la imagen: $e');
+    }
+  }
+
   Future<void> _registrar() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      
+      if (imagen != null || imagenBytes != null) {
+        try {
+          if (kIsWeb && imagenBytes != null) {
+            await _uploadImageWeb(imagenBytes!, nickname);
+          } else if (imagen != null) {
+            await _uploadImage(imagen!, nickname);
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error al subir la imagen: $e')),
+          );
+          return;
+        }
+      }
+
       Estudiante nuevoEstudiante = Estudiante(
         idEstudiante: 0, // Este valor se actualizará en el controlador
         nickname: nickname,
@@ -182,8 +232,12 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
               const SizedBox(height: 16),
               _buildClaseDropdownButtonFormField(),
               const SizedBox(height: 16),
+              if (imagen != null)
+                Image.file(imagen!, height: 200)
+              else if (imagenBytes != null)
+                Image.memory(imagenBytes!, height: 200),
               ListTile(
-                title: Text(imagen == null ? 'Selecciona una imagen (opcional)' : 'Imagen seleccionada'),
+                title: Text(imagen == null && imagenBytes == null ? 'Selecciona una imagen (opcional)' : 'Imagen seleccionada'),
                 trailing: const Icon(Icons.image),
                 onTap: _pickImage,
               ),
