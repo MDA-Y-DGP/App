@@ -92,87 +92,110 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
     // Obtener el grado de aprendizaje del estudiante seleccionado
     String gradoAprendizaje = estudianteSeleccionado!['gradoAprendizaje'] ?? 'alto';
 
-    if (gradoAprendizaje == 'alto') {
-      // Campo de texto normal para grado alto
-      return Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            Text(
-              'Hola, ${estudianteSeleccionado!['nickname']}!',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: 'Contraseña',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double widthFactor = constraints.maxWidth * 0.8; // Ajusta el ancho relativo a la pantalla
+
+        if (gradoAprendizaje == 'alto') {
+          // Campo de texto normal para grado alto
+          return Center(
+            child: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: widthFactor),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Hola, ${estudianteSeleccionado!['nickname']}!',
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          labelText: 'Contraseña',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.8),
+                        ),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa tu contraseña';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _iniciarSesion,
+                        child: const Text('Iniciar Sesión'),
+                      ),
+                    ],
+                  ),
                 ),
-                filled: true,
-                fillColor: Colors.white.withOpacity(0.8),
               ),
-              obscureText: true,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor ingresa tu contraseña';
-                }
-                return null;
-              },
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _iniciarSesion,
-              child: const Text('Iniciar Sesión'),
-            ),
-          ],
-        ),
-      );
-    } else {
-      // Mostrar pictogramas para grado medio o bajo
-      return Column(
-        children: [
-          Text(
-            'Hola, ${estudianteSeleccionado!['nickname']}!',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          Text('Ingresa tu contraseña usando los pictogramas:'),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            children: List.generate(6, (index) {
-              int pictogramaNumero = index + 1;
-              return GestureDetector(
-                onTap: () => _agregarDigitoPictograma(pictogramaNumero),
-                child: Image.asset(
-                  'agenda_ptval/assets/Sol.png',
-                  width: 60,
-                  height: 60,
+          );
+        } else {
+          // Mostrar pictogramas para grado medio o bajo
+          return Center(
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: widthFactor),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Hola, ${estudianteSeleccionado!['nickname']}!',
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Ingresa tu contraseña usando los pictogramas:'),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      children: List.generate(6, (index) {
+                        int pictogramaNumero = index + 1;
+                        return GestureDetector(
+                          onTap: () => _agregarDigitoPictograma(pictogramaNumero),
+                          child: Image.asset(
+                            'assets/Sol.png',
+                            width: 200,
+                            height: 200,
+                          ),
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Secuencia: $pictogramaPassword',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: _resetPictogramaPassword,
+                      child: const Text('Borrar Secuencia'),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _iniciarSesionConPictograma,
+                      child: const Text('Iniciar Sesión'),
+                    ),
+                  ],
                 ),
-              );
-            }),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Secuencia: $pictogramaPassword',
-            style: TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: _resetPictogramaPassword,
-            child: Text('Borrar Secuencia'),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _iniciarSesionConPictograma,
-            child: const Text('Iniciar Sesión'),
-          ),
-        ],
-      );
-    }
+              ),
+            ),
+          );
+        }
+      },
+    );
   }
+
 
   void _agregarDigitoPictograma(int digito) {
     if (pictogramaPassword.length < 4) {
@@ -238,7 +261,7 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
                 radius: 50,
                 backgroundImage: estudiante['foto'] != ''
                     ? NetworkImage(estudiante['foto']!)
-                    : const AssetImage('assets/default_photo.png') as ImageProvider,
+                    : const AssetImage('assets/perfil_default.png') as ImageProvider,
               ),
               const SizedBox(height: 8),
               Text(estudiante['nickname']!, style: const TextStyle(fontSize: 16)),
@@ -268,7 +291,7 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
                 radius: 100,
                 backgroundImage: estudianteSeleccionado!['foto'] != ''
                     ? NetworkImage(estudianteSeleccionado!['foto']!)
-                    : const AssetImage('assets/default_photo.png') as ImageProvider,
+                    : const AssetImage('assets/perfil_default.png') as ImageProvider,
               ),
             ),
             const SizedBox(height: 20),

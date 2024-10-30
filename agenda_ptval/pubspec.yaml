@@ -74,6 +74,8 @@ flutter:
   assets:
     - assets/estudiante.png
     - assets/profesor.png
+    - assets/perfil_default.png
+    - assets/Sol.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
