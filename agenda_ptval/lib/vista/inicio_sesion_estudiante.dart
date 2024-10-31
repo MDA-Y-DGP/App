@@ -1,8 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controlador/estudiante_controller.dart';
+import '../controlador/imagen_controller.dart';
 import 'package:crypto/crypto.dart';
 
 class InicioSesionEstudiante extends StatefulWidget {
@@ -19,6 +19,7 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   late EstudianteController _estudianteController;
+  late ImagenController _imagenController;
   List<Map<String, dynamic>> estudiantes = [];
   Map<String, dynamic>? estudianteSeleccionado;
   String pictogramaPassword = '';
@@ -27,6 +28,7 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
   void initState() {
     super.initState();
     _estudianteController = EstudianteController();
+    _imagenController = ImagenController();
     _cargarEstudiantes();
   }
 
@@ -39,6 +41,9 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
   Future<void> _cargarEstudiantes() async {
     try {
       List<Map<String, dynamic>> lista = await _estudianteController.obtenerNombreFotoGradoDeEstudiantes();
+      for (var estudiante in lista) {
+        estudiante['foto'] = await _imagenController.obtenerFotoPerfil(estudiante['nickname']);
+      }
       setState(() {
         estudiantes = lista;
       });
@@ -55,22 +60,18 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
     });
   }
 
-  // Método para iniciar sesión
   void _iniciarSesion() async {
     if (_formKey.currentState!.validate()) {
       String password = hashPassword(_passwordController.text);
 
       try {
-        // Verificar las credenciales en Firestore
-        final estudiante = await _estudianteController.iniciarSesion(estudianteSeleccionado!['nickname']!, password);
+        final estudiante = await _estudianteController.iniciarSesion(estudianteSeleccionado!['nickname'], password);
 
         if (estudiante != null) {
-          // Credenciales válidas
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Credenciales válidas')),
           );
         } else {
-          // Credenciales inválidas
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Credenciales inválidas')),
           );
@@ -83,21 +84,18 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
     }
   }
 
-  // Método para construir el formulario de contraseña
   Widget _buildPasswordForm() {
     if (estudianteSeleccionado == null) {
       return const SizedBox(); // Retorna un widget vacío si no hay estudiante seleccionado
     }
 
-    // Obtener el grado de aprendizaje del estudiante seleccionado
     String gradoAprendizaje = estudianteSeleccionado!['gradoAprendizaje'] ?? 'alto';
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        double widthFactor = constraints.maxWidth * 0.8; // Ajusta el ancho relativo a la pantalla
+        double widthFactor = constraints.maxWidth * 0.8;
 
         if (gradoAprendizaje == 'alto') {
-          // Campo de texto normal para grado alto
           return Center(
             child: SingleChildScrollView(
               child: Form(
@@ -142,7 +140,6 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
             ),
           );
         } else {
-          // Mostrar pictogramas para grado medio o bajo
           return Center(
             child: SingleChildScrollView(
               child: ConstrainedBox(
@@ -196,7 +193,6 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
     );
   }
 
-
   void _agregarDigitoPictograma(int digito) {
     if (pictogramaPassword.length < 4) {
       setState(() {
@@ -213,20 +209,17 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
 
   void _iniciarSesionConPictograma() async {
     if (pictogramaPassword.length == 4) {
-
       String constrasena = hashPassword(pictogramaPassword);
 
       try {
         final estudiante = await _estudianteController.iniciarSesion(
-            estudianteSeleccionado!['nickname']!, constrasena);
+            estudianteSeleccionado!['nickname'], constrasena);
 
         if (estudiante != null) {
-          // Credenciales válidas
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Credenciales válidas')),
           );
         } else {
-          // Credenciales inválidas
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Credenciales inválidas')),
           );
@@ -243,7 +236,6 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
     }
   }
 
-  // Muestra todas las fotos con nombres debajo
   Widget _buildStudentGrid() {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -257,11 +249,22 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
           onTap: () => _seleccionarEstudiante(estudiante),
           child: Column(
             children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundImage: estudiante['foto'] != ''
-                    ? NetworkImage(estudiante['foto']!)
-                    : const AssetImage('assets/perfil_default.png') as ImageProvider,
+              FutureBuilder<String>(
+                future: _imagenController.obtenerFotoPerfil(estudiante['nickname']),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return const Icon(Icons.error);
+                  } else if (snapshot.hasData) {
+                    return CircleAvatar(
+                      radius: 50,
+                      backgroundImage: NetworkImage(snapshot.data!),
+                    );
+                  } else {
+                    return const Icon(Icons.error);
+                  }
+                },
               ),
               const SizedBox(height: 8),
               Text(estudiante['nickname']!, style: const TextStyle(fontSize: 16)),
@@ -283,21 +286,32 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
         child: estudianteSeleccionado == null
             ? _buildStudentGrid()
             : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            GestureDetector(
-              onTap: () => setState(() => estudianteSeleccionado = null),
-              child: CircleAvatar(
-                radius: 100,
-                backgroundImage: estudianteSeleccionado!['foto'] != ''
-                    ? NetworkImage(estudianteSeleccionado!['foto']!)
-                    : const AssetImage('assets/perfil_default.png') as ImageProvider,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () => setState(() => estudianteSeleccionado = null),
+                    child: FutureBuilder<String>(
+                      future: _imagenController.obtenerFotoPerfil(estudianteSeleccionado!['nickname']),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return const Icon(Icons.error);
+                        } else if (snapshot.hasData) {
+                          return CircleAvatar(
+                            radius: 80,
+                            backgroundImage: NetworkImage(snapshot.data!),
+                          );
+                        } else {
+                          return const Icon(Icons.error);
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildPasswordForm(),
+                ],
               ),
-            ),
-            const SizedBox(height: 20),
-            _buildPasswordForm(),
-          ],
-        ),
       ),
     );
   }

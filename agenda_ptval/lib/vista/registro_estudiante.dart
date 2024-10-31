@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:agenda_ptval/modelo/estudiante_modelo.dart';
 import 'package:agenda_ptval/modelo/clase_modelo.dart';
 import 'package:agenda_ptval/controlador/estudiante_controller.dart';
+import 'package:agenda_ptval/controlador/imagen_controller.dart';
 import 'package:crypto/crypto.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class RegistroEstudiante extends StatefulWidget {
@@ -20,6 +20,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
   final _formKey = GlobalKey<FormState>();
   final EstudianteController _controller = EstudianteController();
   final ClaseController _claseController = ClaseController();
+  final ImagenController _imagenController = ImagenController();
   final ImagePicker _picker = ImagePicker();
 
   String nickname = '';
@@ -73,27 +74,20 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
     }
   }
 
-  Future<void> _uploadImage(File image, String nickname) async {
-    try {
-      final storageRef = FirebaseStorage.instance.ref();
-      final imageRef = storageRef.child('images/${nickname}_perfil.jpg');
-      final uploadTask = imageRef.putFile(image);
-      final snapshot = await uploadTask.whenComplete(() => null);
-      foto = await snapshot.ref.getDownloadURL();
-    } catch (e) {
-      throw Exception('Error al subir la imagen: $e');
-    }
-  }
-
-  Future<void> _uploadImageWeb(Uint8List imageBytes, String nickname) async {
-    try {
-      final storageRef = FirebaseStorage.instance.ref();
-      final imageRef = storageRef.child('images/${nickname}_perfil.jpg');
-      final uploadTask = imageRef.putData(imageBytes);
-      final snapshot = await uploadTask.whenComplete(() => null);
-      foto = await snapshot.ref.getDownloadURL();
-    } catch (e) {
-      throw Exception('Error al subir la imagen: $e');
+  Future<void> _subirImagen() async {
+    if (imagen != null || imagenBytes != null) {
+      try {
+        if (kIsWeb && imagenBytes != null) {
+          foto = await _imagenController.subirImagenWeb(imagenBytes!, 'img_perfil', nickname);
+        } else if (imagen != null) {
+          foto = await _imagenController.subirImagen(imagen!, 'img_perfil', nickname);
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al subir la imagen: $e')),
+        );
+        return;
+      }
     }
   }
 
@@ -101,20 +95,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       
-      if (imagen != null || imagenBytes != null) {
-        try {
-          if (kIsWeb && imagenBytes != null) {
-            await _uploadImageWeb(imagenBytes!, nickname);
-          } else if (imagen != null) {
-            await _uploadImage(imagen!, nickname);
-          }
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al subir la imagen: $e')),
-          );
-          return;
-        }
-      }
+      await _subirImagen();
 
       Estudiante nuevoEstudiante = Estudiante(
         idEstudiante: 0, // Este valor se actualizará en el controlador
@@ -123,7 +104,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
         idClase: int.parse(claseAsignada!), // Guardamos el ID de la clase
         idHistorial: 0, // Este valor se actualizará en el controlador
         contrasena: hashPassword(contrasena),
-        foto: foto,
+        foto: foto, // Guardamos el enlace de la imagen en la base de datos
       );
 
       try {
