@@ -29,7 +29,6 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
   File? imagen;
   Uint8List? imagenBytes;
   String contrasena = '';
-  String foto = '';
 
   List<Clase> clases = []; // Lista para almacenar las clases
 
@@ -78,9 +77,9 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
     if (imagen != null || imagenBytes != null) {
       try {
         if (kIsWeb && imagenBytes != null) {
-          foto = await _imagenController.subirImagenWeb(imagenBytes!, 'img_perfil', nickname);
+          await _imagenController.subirImagenWeb(imagenBytes!, 'img_perfil', nickname);
         } else if (imagen != null) {
-          foto = await _imagenController.subirImagen(imagen!, 'img_perfil', nickname);
+          await _imagenController.subirImagen(imagen!, 'img_perfil', nickname);
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -104,7 +103,6 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
         idClase: int.parse(claseAsignada!), // Guardamos el ID de la clase
         idHistorial: 0, // Este valor se actualizará en el controlador
         contrasena: hashPassword(contrasena),
-        foto: foto, // Guardamos el enlace de la imagen en la base de datos
       );
 
       try {

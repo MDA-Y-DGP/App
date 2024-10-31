@@ -20,8 +20,6 @@ class Estudiante {
   /// La contraseña del estudiante. Si el estudiante tiene un grado alto podrá usar texto en la contraseña, sino pictogramas.
   String contrasena;
 
-  String foto;
-
   /// Constructor para crear una instancia de [Estudiante].
   /// 
   /// [idEstudiante] es el ID del estudiante.
@@ -37,7 +35,6 @@ class Estudiante {
     required this.idClase,
     required this.idHistorial,
     required this.contrasena,
-    required this.foto,
   });
 
   /// Método para convertir el objeto a un mapa (JSON).
@@ -51,7 +48,6 @@ class Estudiante {
       'id_clase': idClase,
       'id_historial': idHistorial,
       'contrasena': contrasena,
-      'foto': foto,
     };
   }
 
@@ -67,7 +63,6 @@ class Estudiante {
       idClase: json['id_clase'],
       idHistorial: json['id_historial'],
       contrasena: json['contrasena'],
-      foto: json['foto']
     );
   }
 }

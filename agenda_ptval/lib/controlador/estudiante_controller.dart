@@ -53,7 +53,6 @@ class EstudianteController {
       idClase: estudiante.idClase,
       idHistorial: newHistorialId,
       contrasena: estudiante.contrasena,
-      foto: estudiante.foto,
     );
 
     // Crear un nuevo historial asociado al estudiante
@@ -94,8 +93,8 @@ class EstudianteController {
     }
   }
 
-  /// Obtiene el nombre y la foto de todos los estudiantes en la base de datos.
-  Future<List<Map<String, dynamic>>> obtenerNombreFotoGradoDeEstudiantes() async {
+  /// Obtiene el nombre y el grado de aprendizaje de todos los estudiantes en la base de datos.
+  Future<List<Map<String, dynamic>>> obtenerNombreGradoDeEstudiantes() async {
     try {
       QuerySnapshot querySnapshot = await _estudiantesCollection.get();
 
@@ -106,15 +105,13 @@ class EstudianteController {
 
         listaEstudiantes.add({
           'nickname': data['nickname'],
-          'foto': data['foto'] ?? '', // Si no hay foto, usar un valor vacío
           'gradoAprendizaje': data['grado_aprendizaje']
         });
       }
 
       return listaEstudiantes;
     } catch (e) {
-      throw Exception('Error al obtener nombres y fotos de estudiantes: $e');
+      throw Exception('Error al obtener nombres y grados de estudiantes: $e');
     }
   }
-
 }
