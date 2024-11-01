@@ -76,6 +76,9 @@ flutter:
     - assets/profesor.png
     - assets/perfil_default.png
     - assets/Sol.png
+
+scripts:
+  web: flutter run -d chrome --web-renderer html
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

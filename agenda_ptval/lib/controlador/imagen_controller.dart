@@ -31,7 +31,7 @@ class ImagenController {
       return await storageRef.getDownloadURL();
     } catch (e) {
       // Si no se encuentra la foto de perfil, devolver la URL de la imagen por defecto
-      final defaultRef = FirebaseStorage.instance.ref().child('img_perfil/b94dd38772932fa669f245757ec4b090.jpg');
+      final defaultRef = FirebaseStorage.instance.ref().child('img_perfil/foto de perfil.png');
       return await defaultRef.getDownloadURL();
     }
   }
