@@ -97,6 +97,12 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
     return LayoutBuilder(
       builder: (context, constraints) {
         double widthFactor = constraints.maxWidth * 0.8; // Ajusta el ancho relativo a la pantalla
+        double imageSize = (constraints.maxWidth - 32) / 3; // Ajusta el tamaño de la imagen
+        double maxImageSize = 100; // Tamaño máximo de la imagen
+
+        if (imageSize > maxImageSize) {
+          imageSize = maxImageSize;
+        }
 
         if (gradoAprendizaje == 'alto') {
           // Campo de texto normal para grado alto
@@ -159,19 +165,43 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
                     const SizedBox(height: 16),
                     const Text('Ingresa tu contraseña usando los pictogramas:'),
                     const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8,
-                      children: List.generate(6, (index) {
-                        int pictogramaNumero = index + 1;
-                        return GestureDetector(
-                          onTap: () => _agregarDigitoPictograma(pictogramaNumero),
-                          child: Image.asset(
-                            'assets/Sol.png',
-                            width: 200,
-                            height: 200,
-                          ),
-                        );
-                      }),
+                    Container(
+                      constraints: BoxConstraints(
+                        maxHeight: constraints.maxHeight * 0.4, // Limita la altura del contenedor
+                        maxWidth: constraints.maxWidth * 0.8, // Limita el ancho del contenedor
+                      ),
+                      child: LayoutBuilder(
+                        builder: (context, innerConstraints) {
+                          double imageSize = innerConstraints.maxWidth / 3 - 16; // Ajusta el tamaño de la imagen
+                          double maxImageSize = 100; // Tamaño máximo de la imagen
+                          if (imageSize > maxImageSize) {
+                            imageSize = maxImageSize;
+                          }
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              childAspectRatio: 1,
+                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 8,
+                            ),
+                            itemCount: 6,
+                            itemBuilder: (context, index) {
+                              int pictogramaNumero = index + 1;
+                              return GestureDetector(
+                                onTap: () => _agregarDigitoPictograma(pictogramaNumero),
+                                child: Image.asset(
+                                  'assets/Sol.png',
+                                  fit: BoxFit.contain,
+                                  width: imageSize,
+                                  height: imageSize,
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ),
                     const SizedBox(height: 10),
                     Text(
@@ -266,7 +296,7 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
                     return const Icon(Icons.error);
                   } else if (snapshot.hasData) {
                     return CircleAvatar(
-                      radius: 50,
+                      radius: 40, // Hacer la imagen del perfil más pequeña
                       backgroundImage: NetworkImage(snapshot.data!),
                     );
                   } else {
@@ -307,7 +337,7 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
                     return const Icon(Icons.error);
                   } else if (snapshot.hasData) {
                     return CircleAvatar(
-                      radius: 100,
+                      radius: 40, // Hacer la imagen del perfil más pequeña
                       backgroundImage: NetworkImage(snapshot.data!),
                     );
                   } else {
