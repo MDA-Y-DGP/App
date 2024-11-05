@@ -3,6 +3,7 @@ import '../modelo/profesor_modelo.dart';
 import 'agregar_clase.dart';
 import 'registro_estudiante.dart';
 import 'registro_profesor.dart'; // Importar la pantalla de registro de profesor
+import 'crear_tarea.dart'; // Importar la pantalla de creación de tareas
 
 class PantallaInicioAdministrador extends StatelessWidget {
   final Profesor profesor;
@@ -61,6 +62,18 @@ class PantallaInicioAdministrador extends StatelessWidget {
                 );
               },
               child: const Text('Registrar Profesor'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          CrearTarea()), // Navegar a la pantalla de creación de tareas
+                );
+              },
+              child: const Text('Crear Tarea'),
             ),
           ],
         ),
