@@ -6,13 +6,14 @@ import 'package:agenda_ptval/modelo/historial_modelo.dart';
 /// Controlador para manejar las operaciones relacionadas con los estudiantes.
 class EstudianteController {
   /// Referencia a la colección de estudiantes en Firestore.
-  final CollectionReference _estudiantesCollection = FirebaseFirestore.instance.collection('estudiantes');
+  final CollectionReference _estudiantesCollection =
+      FirebaseFirestore.instance.collection('estudiantes');
 
   /// Instancia del controlador de historiales.
   final HistorialController _historialController = HistorialController();
 
   /// Registra un nuevo estudiante y crea un historial asociado.
-  /// 
+  ///
   /// [estudiante] es la instancia de [Estudiante] que se va a registrar.
   /// Asigna un nuevo ID al estudiante y al historial, y los guarda en la base de datos.
   Future<void> registrarEstudiante(Estudiante estudiante) async {
@@ -112,6 +113,83 @@ class EstudianteController {
       return listaEstudiantes;
     } catch (e) {
       throw Exception('Error al obtener nombres y grados de estudiantes: $e');
+    }
+  }
+
+  /// Obtiene los estudiantes de una clase específica.
+  Future<List<Estudiante>> obtenerEstudiantesPorClase(String claseId) async {
+    try {
+      int claseIdInt = int.parse(claseId);
+      QuerySnapshot snapshot = await _estudiantesCollection.where('idClase', isEqualTo: claseIdInt).get();
+      return snapshot.docs.map((doc) => Estudiante.fromJson(doc.data() as Map<String, dynamic>)).toList();
+    } catch (e) {
+      throw Exception('Error al obtener estudiantes por clase: $e');
+    }
+  }
+
+  /// Obtiene el ID del estudiante a partir del nickname.
+  Future<String?> obtenerIdPorNickname(String nickname) async {
+    try {
+      QuerySnapshot querySnapshot = await _estudiantesCollection
+          .where('nickname', isEqualTo: nickname)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        return null;
+      }
+
+      var doc = querySnapshot.docs.first;
+      return doc['id_estudiante'].toString();
+    } catch (e) {
+      throw Exception('Error al obtener ID del estudiante: $e');
+    }
+  }
+
+  /// Obtiene las tareas de un estudiante específico por su nickname.
+  Future<List<Map<String, dynamic>>> obtenerTareasPorNickname(
+      String nickname) async {
+    try {
+      String? estudianteId = await obtenerIdPorNickname(nickname);
+      if (estudianteId == null) {
+        return [];
+      }
+
+      // Obtener el historial del estudiante
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('historiales')
+          .where('idEstudiante', isEqualTo: estudianteId)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        return [];
+      }
+
+      // Suponiendo que solo hay un historial por estudiante
+      var historialDoc = querySnapshot.docs.first;
+      var data = historialDoc.data() as Map<String, dynamic>;
+
+      // Convertir las tareas a una lista de mapas
+      List<Map<String, dynamic>> tareas = [];
+      for (var tarea in data['tareas']) {
+        tareas.add({
+          'nombre': tarea['nombre'],
+          'completada': tarea['completada'],
+        });
+      }
+
+      return tareas;
+    } catch (e) {
+      throw Exception('Error al obtener tareas del estudiante: $e');
+    }
+  }
+
+    /// Obtiene todos los estudiantes.
+  Future<List<Estudiante>> obtenerTodosEstudiantes() async {
+    try {
+      QuerySnapshot snapshot = await _estudiantesCollection.get();
+      return snapshot.docs.map((doc) => Estudiante.fromJson(doc.data() as Map<String, dynamic>)).toList();
+    } catch (e) {
+      throw Exception('Error al obtener todos los estudiantes: $e');
     }
   }
 }

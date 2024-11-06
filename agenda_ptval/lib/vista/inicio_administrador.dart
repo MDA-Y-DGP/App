@@ -4,6 +4,7 @@ import 'agregar_clase.dart';
 import 'registro_estudiante.dart';
 import 'registro_profesor.dart'; // Importar la pantalla de registro de profesor
 import 'crear_tarea.dart'; // Importar la pantalla de creación de tareas
+import 'asignar_tarea_comedor.dart'; // Importar la pantalla de asignar tarea comedor
 
 class PantallaInicioAdministrador extends StatelessWidget {
   final Profesor profesor;
@@ -74,6 +75,18 @@ class PantallaInicioAdministrador extends StatelessWidget {
                 );
               },
               child: const Text('Crear Tarea'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          AsignarTareaComedor()), // Navegar a la pantalla de asignar tarea comedor
+                );
+              },
+              child: const Text('Asignar Tarea Comedor'),
             ),
           ],
         ),

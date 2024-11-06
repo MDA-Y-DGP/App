@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:agenda_ptval/modelo/tarea_modelo.dart';
-
+import 'package:intl/intl.dart';
 
 class TareaController {
   final CollectionReference _tareasCollection =
@@ -31,4 +31,6 @@ class TareaController {
     // Guardar la nueva tarea en Firestore
     await _tareasCollection.doc(newId.toString()).set(nuevaTarea.toMap());
   }
+
+
 }

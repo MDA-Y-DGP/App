@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controlador/estudiante_controller.dart';
 import '../controlador/imagen_controller.dart';
 import 'package:crypto/crypto.dart';
+import 'pagina_principal_estudiante.dart'; // Importar la nueva página principal
 
 class InicioSesionEstudiante extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -68,8 +69,11 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
 
         if (estudiante != null) {
           // Credenciales válidas
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Credenciales válidas')),
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PaginaPrincipalEstudiante(nickname: estudianteSeleccionado!['nickname']),
+            ),
           );
         } else {
           // Credenciales inválidas
@@ -252,8 +256,11 @@ class _InicioSesionEstudianteState extends State<InicioSesionEstudiante> {
 
         if (estudiante != null) {
           // Credenciales válidas
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Credenciales válidas')),
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PaginaPrincipalEstudiante(nickname: estudianteSeleccionado!['nickname']),
+            ),
           );
         } else {
           // Credenciales inválidas
