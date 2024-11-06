@@ -120,7 +120,7 @@ class EstudianteController {
   Future<List<Estudiante>> obtenerEstudiantesPorClase(String claseId) async {
     try {
       int claseIdInt = int.parse(claseId);
-      QuerySnapshot snapshot = await _estudiantesCollection.where('idClase', isEqualTo: claseIdInt).get();
+      QuerySnapshot snapshot = await _estudiantesCollection.where('id_clase', isEqualTo: claseIdInt).get();
       return snapshot.docs.map((doc) => Estudiante.fromJson(doc.data() as Map<String, dynamic>)).toList();
     } catch (e) {
       throw Exception('Error al obtener estudiantes por clase: $e');

@@ -18,6 +18,7 @@ class _AsignarTareaComedorState extends State<AsignarTareaComedor> {
 
   String? _selectedTarea;
   String? _selectedClase;
+  String? _selectedEstudiante;
   List<Estudiante> _estudiantes = [];
   bool _isLoading = false;
 
@@ -43,13 +44,13 @@ class _AsignarTareaComedorState extends State<AsignarTareaComedor> {
                   const SizedBox(height: 20),
                   _buildClasesDropdown(),
                   const SizedBox(height: 20),
-                  _buildEstudiantesList(),
+                  _buildEstudiantesDropdown(),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: _selectedClase == null || _selectedTarea == null
+                    onPressed: _selectedClase == null || _selectedTarea == null || _selectedEstudiante == null
                         ? null
                         : () {
-                            // Lógica para asignar la tarea a la clase seleccionada
+                            _asignarTarea();
                           },
                     child: Text('Asignar Tarea a la Clase Seleccionada'),
                     style: ElevatedButton.styleFrom(
@@ -117,6 +118,7 @@ class _AsignarTareaComedorState extends State<AsignarTareaComedor> {
             onChanged: (String? newValue) {
               setState(() {
                 _selectedClase = newValue;
+                _selectedEstudiante = null; // Resetear el estudiante seleccionado
                 _fetchEstudiantesPorClase(newValue!);
               });
             },
@@ -132,18 +134,26 @@ class _AsignarTareaComedorState extends State<AsignarTareaComedor> {
     );
   }
 
-  Widget _buildEstudiantesList() {
+  Widget _buildEstudiantesDropdown() {
     return _estudiantes.isEmpty
         ? Center(child: Text('No hay estudiantes disponibles'))
-        : ListView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: _estudiantes.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(_estudiantes[index].nickname),
-              );
+        : DropdownButtonFormField<String>(
+            decoration: InputDecoration(
+              labelText: 'Selecciona un estudiante',
+              border: OutlineInputBorder(),
+            ),
+            value: _selectedEstudiante,
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedEstudiante = newValue;
+              });
             },
+            items: _estudiantes.map((Estudiante estudiante) {
+              return DropdownMenuItem<String>(
+                value: estudiante.idEstudiante.toString(),
+                child: Text(estudiante.nickname),
+              );
+            }).toList(),
           );
   }
 
@@ -151,18 +161,21 @@ class _AsignarTareaComedorState extends State<AsignarTareaComedor> {
     setState(() {
       _isLoading = true;
     });
-    try {
-      List<Estudiante> estudiantes = await _estudianteController.obtenerEstudiantesPorClase(claseId);
-      setState(() {
-        _estudiantes = estudiantes;
-      });
-    } catch (e) {
-      // Manejo de errores
-      print('Error al obtener estudiantes: $e');
-      print(claseId);
-    } finally {
-      setState(() {
-        _isLoading = false;
+    List<Estudiante> estudiantes = await _estudianteController.obtenerEstudiantesPorClase(claseId);
+    setState(() {
+      _estudiantes = estudiantes;
+      _isLoading = false;
+    });
+  }
+
+  void _asignarTarea() {
+    if (_selectedClase != null && _selectedTarea != null && _selectedEstudiante != null) {
+      _tareaComedorController.asignarTarea(_selectedTarea!, _selectedEstudiante!);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tarea asignada correctamente')),
+      );
+      Future.delayed(Duration(seconds: 2), () {
+        Navigator.pop(context);
       });
     }
   }

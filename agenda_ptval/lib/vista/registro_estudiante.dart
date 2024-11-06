@@ -10,6 +10,7 @@ import 'package:agenda_ptval/controlador/imagen_controller.dart';
 import 'package:crypto/crypto.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/services.dart';
 
 class RegistroEstudiante extends StatefulWidget {
   @override
@@ -124,6 +125,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
     required Function(String?) onSaved,
     required String? Function(String?) validator,
     bool obscureText = false,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextFormField(
       decoration: InputDecoration(
@@ -133,6 +135,7 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
       onSaved: onSaved,
       validator: validator,
       obscureText: obscureText,
+      inputFormatters: inputFormatters,
     );
   }
 
@@ -224,8 +227,19 @@ class _RegistroEstudianteState extends State<RegistroEstudiante> {
               _buildTextFormField(
                 labelText: 'Contraseña',
                 onSaved: (value) => contrasena = value!,
-                validator: (value) => value!.isEmpty ? 'Ingresa una contraseña' : null,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Ingresa una contraseña';
+                  }
+                  if ((gradoAprendizaje == 'bajo' || gradoAprendizaje == 'medio') && !RegExp(r'^[1-6]{4}$').hasMatch(value)) {
+                    return 'La contraseña debe ser de 4 dígitos entre 1 y 6';
+                  }
+                  return null;
+                },
                 obscureText: true,
+                inputFormatters: (gradoAprendizaje == 'bajo' || gradoAprendizaje == 'medio')
+                    ? [FilteringTextInputFormatter.allow(RegExp(r'[1-6]')), LengthLimitingTextInputFormatter(4)]
+                    : null,
               ),
               const SizedBox(height: 20),
               ElevatedButton(

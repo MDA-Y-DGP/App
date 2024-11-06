@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:agenda_ptval/modelo/tarea_modelo.dart';
-import 'package:intl/intl.dart';
 
 class TareaController {
   final CollectionReference _tareasCollection =
