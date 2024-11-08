@@ -1,3 +1,4 @@
+import 'package:agenda_ptval/vista/crear_menus.dart';
 import 'package:flutter/material.dart';
 import '../modelo/profesor_modelo.dart';
 import 'agregar_clase.dart';
@@ -87,6 +88,18 @@ class PantallaInicioAdministrador extends StatelessWidget {
                 );
               },
               child: const Text('Asignar Tarea Comedor'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          CrearMenu()), // Navegar a la pantalla de creación de menús
+                );
+              },
+              child: const Text('Crear Menú'),
             ),
           ],
         ),

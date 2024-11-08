@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _navigateToProfesorLogin(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const InicioSesionProfesor()),
+      MaterialPageRoute(builder: (context) => InicioSesionProfesor()),
     );
   }
 
@@ -55,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _navigateToStudentLogin(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) =>const InicioSesionEstudiante()),
+      MaterialPageRoute(builder: (context) => InicioSesionEstudiante()),
     );
   }
 
@@ -122,43 +122,36 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true, // Centra el título
       ),
       body: Center(
-        child: isPortrait
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildProfesorOption(context),
-                  SizedBox(height: screenHeight * 0.05),
-                  _buildEstudianteOption(context),
-                ],
-              )
-            : SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildProfesorOption(context),
-                    SizedBox(width: screenWidth * 0.05),
-                    _buildEstudianteOption(context),
-                  ],
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                child: IntrinsicHeight(
+                  child: isPortrait
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildProfesorOption(context),
+                            SizedBox(height: screenHeight * 0.05),
+                            _buildEstudianteOption(context),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildProfesorOption(context),
+                            SizedBox(width: screenWidth * 0.05),
+                            _buildEstudianteOption(context),
+                          ],
+                        ),
                 ),
               ),
-      ),
-    );
-  }
-}
-
-class NextScreen extends StatelessWidget {
-  const NextScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Next Screen'),
-        centerTitle: true, // Centra el título
-      ),
-      body: const Center(
-        child: Text('This is the next screen'),
+            );
+          },
+        ),
       ),
     );
   }
