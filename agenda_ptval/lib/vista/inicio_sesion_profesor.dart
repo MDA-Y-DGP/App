@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controlador/profesor_controller.dart';
 import 'inicio_administrador.dart';
 
 class InicioSesionProfesor extends StatefulWidget {
-  final FirebaseFirestore firestore;
 
-  const InicioSesionProfesor({super.key, required this.firestore});
+  const InicioSesionProfesor({super.key});
 
   @override
   _InicioSesionState createState() => _InicioSesionState();
@@ -55,18 +53,6 @@ class _InicioSesionState extends State<InicioSesionProfesor> {
         );
       }
     }
-  }
-
-  // Widget para el fondo de pantalla
-  Widget _buildBackground() {
-    return Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/background.jpg'), // Asegúrate de tener esta imagen en tu carpeta assets
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
   }
 
   // Widget para el logo y el título
@@ -215,7 +201,6 @@ class _InicioSesionState extends State<InicioSesionProfesor> {
       ),
       body: Stack(
         children: [
-          _buildBackground(),
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),

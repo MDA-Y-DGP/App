@@ -1,7 +1,7 @@
+import 'package:agenda_ptval/modelo/tarea_modelo.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controlador/clase_controller.dart';
-import '../controlador/tarea_comedor_controller.dart';
+import '../controlador/tarea_controller.dart';
 import '../controlador/estudiante_controller.dart';
 import '../modelo/clase_modelo.dart';
 import '../modelo/estudiante_modelo.dart';
@@ -12,7 +12,7 @@ class AsignarTareaComedor extends StatefulWidget {
 }
 
 class _AsignarTareaComedorState extends State<AsignarTareaComedor> {
-  final TareaComedorController _tareaComedorController = TareaComedorController();
+  final TareaController _tareaController = TareaController();
   final ClaseController _claseController = ClaseController();
   final EstudianteController _estudianteController = EstudianteController();
 
@@ -65,8 +65,8 @@ class _AsignarTareaComedorState extends State<AsignarTareaComedor> {
   }
 
   Widget _buildTareasDropdown() {
-    return FutureBuilder<List<DocumentSnapshot>>(
-      future: _tareaComedorController.fetchTareasComedor(),
+    return FutureBuilder<List<Tarea>>(
+      future: _tareaController.obtenerTareasDeTipoComedor(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -86,10 +86,10 @@ class _AsignarTareaComedorState extends State<AsignarTareaComedor> {
                 _selectedTarea = newValue;
               });
             },
-            items: snapshot.data!.map((DocumentSnapshot document) {
+            items: snapshot.data!.map((Tarea tarea) {
               return DropdownMenuItem<String>(
-                value: document.id,
-                child: Text(document['titulo']),
+                value: tarea.idTarea.toString(),
+                child: Text(tarea.titulo),
               );
             }).toList(),
           );
@@ -150,7 +150,7 @@ class _AsignarTareaComedorState extends State<AsignarTareaComedor> {
             },
             items: _estudiantes.map((Estudiante estudiante) {
               return DropdownMenuItem<String>(
-                value: estudiante.idEstudiante.toString(),
+                value: estudiante.nickname, // Usar nickname en lugar de idEstudiante
                 child: Text(estudiante.nickname),
               );
             }).toList(),
@@ -168,15 +168,21 @@ class _AsignarTareaComedorState extends State<AsignarTareaComedor> {
     });
   }
 
-  void _asignarTarea() {
+  void _asignarTarea() async {
     if (_selectedClase != null && _selectedTarea != null && _selectedEstudiante != null) {
-      _tareaComedorController.asignarTarea(_selectedTarea!, _selectedEstudiante!);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Tarea asignada correctamente')),
-      );
-      Future.delayed(Duration(seconds: 2), () {
-        Navigator.pop(context);
-      });
+      try {
+        await _tareaController.asignarTarea(_selectedTarea!, _selectedEstudiante!);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tarea asignada correctamente')),
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(context);
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al asignar tarea: $e')),
+        );
+      }
     }
   }
 }

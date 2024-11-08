@@ -1,15 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controlador/estudiante_controller.dart';
 import '../controlador/imagen_controller.dart';
 import 'package:crypto/crypto.dart';
 import 'pagina_principal_estudiante.dart'; // Importar la nueva página principal
 
 class InicioSesionEstudiante extends StatefulWidget {
-  final FirebaseFirestore firestore;
 
-  const InicioSesionEstudiante({super.key, required this.firestore});
+  const InicioSesionEstudiante({super.key});
 
   @override
   _InicioSesionEstudianteState createState() => _InicioSesionEstudianteState();

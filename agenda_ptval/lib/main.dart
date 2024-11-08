@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _navigateToProfesorLogin(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => InicioSesionProfesor(firestore: widget.firestore)),
+      MaterialPageRoute(builder: (context) => const InicioSesionProfesor()),
     );
   }
 
@@ -55,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _navigateToStudentLogin(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => InicioSesionEstudiante(firestore: widget.firestore)),
+      MaterialPageRoute(builder: (context) =>const InicioSesionEstudiante()),
     );
   }
 
