@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RealizarComanda extends StatefulWidget {
   @override
@@ -6,18 +7,39 @@ class RealizarComanda extends StatefulWidget {
 }
 
 class _RealizarComandaState extends State<RealizarComanda> {
-  final List<String> _clases = ['Clase 1', 'Clase 2', 'Clase 3'];
   final List<String> _tiposMenu = ['Menu 1', 'Menu 2', 'Menu 3'];
   final Map<String, Map<String, int>> _comandas = {};
+  final Map<String, List<String>> _notas = {};
+  List<String> _clases = [];
+  String _notaActual = '';
+  final PageController _pageController = PageController();
+  int _paginaActual = 0;
+  final TextEditingController _notaController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    for (var clase in _clases) {
-      _comandas[clase] = {};
-      for (var tipoMenu in _tiposMenu) {
-        _comandas[clase]![tipoMenu] = 0;
-      }
+    _obtenerClases();
+  }
+
+  Future<void> _obtenerClases() async {
+    try {
+      QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection('clases').get();
+      List<String> clases =
+          snapshot.docs.map((doc) => doc['nombre'] as String).toList();
+      setState(() {
+        _clases = clases;
+        for (var clase in _clases) {
+          _comandas[clase] = {};
+          for (var tipoMenu in _tiposMenu) {
+            _comandas[clase]![tipoMenu] = 0;
+          }
+          _notas[clase] = [];
+        }
+      });
+    } catch (e) {
+      print('Error al obtener clases: $e');
     }
   }
 
@@ -35,9 +57,31 @@ class _RealizarComandaState extends State<RealizarComanda> {
     });
   }
 
+  void _agregarNota(String clase) {
+    if (_notaActual.isNotEmpty) {
+      setState(() {
+        _notas[clase]!.add(_notaActual);
+        _notaActual = '';
+        _notaController.clear();
+      });
+    }
+  }
+
   void _confirmarComanda() {
     // Aquí puedes agregar la lógica para confirmar la comanda
     print('Comanda confirmada: $_comandas');
+    print('Notas: $_notas');
+  }
+
+  void _cambiarPagina(int index) {
+    setState(() {
+      _paginaActual = index;
+    });
+    _pageController.animateToPage(
+      index,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -46,52 +90,132 @@ class _RealizarComandaState extends State<RealizarComanda> {
       appBar: AppBar(
         title: Text('Realizar Comanda'),
       ),
-      body: ListView(
-        children: _clases.map((clase) {
-          return Card(
-            margin: EdgeInsets.all(10),
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    clase,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  ..._tiposMenu.map((tipoMenu) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(tipoMenu),
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.remove),
-                              onPressed: () => _decrementarCantidad(clase, tipoMenu),
+      body: Stack(
+        children: [
+          _clases.isEmpty
+              ? Center(child: CircularProgressIndicator())
+              : PageView.builder(
+                  controller: _pageController,
+                  itemCount: _clases.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _paginaActual = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    String clase = _clases[index];
+                    return Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            clase,
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 10),
+                          ..._tiposMenu.map((tipoMenu) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 5.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(tipoMenu),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(Icons.remove, size: 30),
+                                        onPressed: () => _decrementarCantidad(
+                                            clase, tipoMenu),
+                                      ),
+                                      Text(
+                                        _comandas[clase]![tipoMenu].toString(),
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.add, size: 30),
+                                        onPressed: () => _incrementarCantidad(
+                                            clase, tipoMenu),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                          SizedBox(height: 10),
+                          ..._notas[clase]!.map((nota) {
+                            int index = _notas[clase]!.indexOf(nota) + 1;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ListTile(
+                                  title: Text('Nota $index:'),
+                                  subtitle: Text(nota),
+                                ),
+                                Divider(),
+                              ],
+                            );
+                          }).toList(),
+                          TextField(
+                            controller: _notaController,
+                            decoration: InputDecoration(
+                              labelText: 'Añadir nota',
+                              hintText: 'Escribe una nota',
+                              border: OutlineInputBorder(),
                             ),
-                            Text(_comandas[clase]![tipoMenu].toString()),
-                            IconButton(
-                              icon: Icon(Icons.add),
-                              onPressed: () => _incrementarCantidad(clase, tipoMenu),
+                            onChanged: (value) {
+                              setState(() {
+                                _notaActual = value;
+                              });
+                            },
+                          ),
+                          SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: () => _agregarNota(clase),
+                            child: Text('Agregar Nota'),
+                          ),
+                          if (_paginaActual == _clases.length - 1)
+                            Padding(
+                              padding: EdgeInsets.only(top: 20),
+                              child: ElevatedButton(
+                                onPressed: _confirmarComanda,
+                                child: Text('Confirmar Comanda'),
+                              ),
                             ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     );
-                  }).toList(),
-                ],
-              ),
+                  },
+                ),
+          Positioned(
+            left: 10,
+            top: _paginaActual == _clases.length - 1
+                ? MediaQuery.of(context).size.height / 2 + 40
+                : MediaQuery.of(context).size.height / 2 - 40,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back, size: 60),
+              onPressed: _paginaActual > 0
+                  ? () => _cambiarPagina(_paginaActual - 1)
+                  : null,
             ),
-          );
-        }).toList(),
-      ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(10),
-        child: ElevatedButton(
-          onPressed: _confirmarComanda,
-          child: Text('Confirmar Comanda'),
-        ),
+          ),
+          Positioned(
+            right: 10,
+            top: _paginaActual == _clases.length - 1
+                ? MediaQuery.of(context).size.height / 2 + 40
+                : MediaQuery.of(context).size.height / 2 - 40,
+            child: IconButton(
+              icon: Icon(Icons.arrow_forward, size: 60),
+              onPressed: _paginaActual < _clases.length - 1
+                  ? () => _cambiarPagina(_paginaActual + 1)
+                  : null,
+            ),
+          ),
+        ],
       ),
     );
   }
