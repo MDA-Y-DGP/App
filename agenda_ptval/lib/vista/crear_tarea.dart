@@ -61,7 +61,7 @@ class _CrearTareaState extends State<CrearTarea> {
                   labelText: 'Tipo de Tarea',
                   border: OutlineInputBorder(),
                 ),
-                items: ['comedor'].map((String value) {
+                items: ['comedor', 'por pasos', 'inventario'].map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
